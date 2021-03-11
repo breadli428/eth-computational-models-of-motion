@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "test-a1",
+      "setup": "",
+      "run": "cmake -DCMM_BUILD_GUI=OFF . && make && ctest -V",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    }
+  ]
+}
