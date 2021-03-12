@@ -18,11 +18,13 @@ typedef std::array<Matrix2d, 2> Tensor2x2x2;
  *
  */
 std::array<Vector2d, 3> forwardKinematics(const Linkage &linkage, const Vector2d &angles) {
+    
     // 1 - Forward Kinematics
     // put your code in this function
+
     Vector2d p0 = linkage.p0;
-    Vector2d p1 = p0 + Vector2d(0, linkage.length[0]);
-    Vector2d p2 = p1 + Vector2d(0, linkage.length[1]);
+    Vector2d p1 = p0 + Vector2d(linkage.length[0] * std::cos(angles[0]), linkage.length[0] * std::sin(angles[0]));
+    Vector2d p2 = p1 + Vector2d(linkage.length[1] * std::cos(angles[0] + angles[1]), linkage.length[1] * std::sin(angles[0] + angles[1]));
     return {p0, p1, p2};
 }
 
@@ -47,7 +49,10 @@ Matrix2d dendEffector_dangles(const Linkage &linkage, const Vector2d &angles) {
     // put your code in this function
 
     Matrix2d dp2_dangles = Matrix2d::Zero();
-
+    dp2_dangles(0,0) = - linkage.length[0] * std::sin(angles[0]) - linkage.length[1] * std::sin(angles[0] + angles[1]);
+    dp2_dangles(1,0) = linkage.length[0] * std::cos(angles[0]) + linkage.length[1] * std::cos(angles[0] + angles[1]);
+    dp2_dangles(0,1) = - linkage.length[1] * std::sin(angles[0] + angles[1]);
+    dp2_dangles(1,1) = linkage.length[1] * std::cos(angles[0] + angles[1]);
     return dp2_dangles;
 }
 
@@ -66,7 +71,16 @@ Tensor2x2x2 ddendEffector_ddangles(const Linkage &linkage, const Vector2d &angle
 
     // 2 - Derivatives of Forward Kinematics
     // put your code in this function
+
     Tensor2x2x2 tensor;
     tensor[0] = tensor[1] = Matrix2d::Zero();
+    tensor[0](0,0) = - linkage.length[0] * std::cos(angles[0]) - linkage.length[1] * std::cos(angles[0] + angles[1]);
+    tensor[0](1,0) = - linkage.length[0] * std::sin(angles[0]) - linkage.length[1] * std::sin(angles[0] + angles[1]);
+    tensor[0](0,1) = - linkage.length[1] * std::cos(angles[0] + angles[1]);
+    tensor[0](1,1) = - linkage.length[1] * std::sin(angles[0] + angles[1]);
+    tensor[1](0,0) = - linkage.length[1] * std::cos(angles[0] + angles[1]);
+    tensor[1](1,0) = - linkage.length[1] * std::sin(angles[0] + angles[1]);
+    tensor[1](0,1) = - linkage.length[1] * std::cos(angles[0] + angles[1]);
+    tensor[1](1,1) = - linkage.length[1] * std::sin(angles[0] + angles[1]);
     return tensor;
 }

@@ -24,6 +24,9 @@ public:
         // 3 - Inverse Kinematics, Task 1
         // put your code in this function
 
+        Vector2d current = endEffectorPosition(*linkage, x);
+        e = 0.5 * (current - *target).transpose() * (current - *target);
+
         return e;
     }
 
@@ -34,7 +37,11 @@ public:
         // 3 - Inverse Kinematics, Task 2
         // put your code in this function
 
-        return VectorXd::Zero(x.size());
+        Vector2d current = endEffectorPosition(*linkage, x);
+        Matrix2d dp2_dangles = dendEffector_dangles(*linkage, x);
+        VectorXd grad = dp2_dangles.transpose() * (current - *target);
+
+        return grad;
     }
 
     // Compute the Hessian of the objective function, d^2f/dx^2
@@ -45,6 +52,13 @@ public:
         // 3 - Inverse Kinematics, Task 3
         // put your code in this function
 
+        Vector2d current = endEffectorPosition(*linkage, x);
+        Matrix2d dp2_dangles = dendEffector_dangles(*linkage, x);
+        Tensor2x2x2 tensor = ddendEffector_ddangles(*linkage, x);
+        Matrix2d crs;
+        crs << tensor[0].transpose() * (current - *target), tensor[1].transpose() * (current - *target);
+        hess = dp2_dangles.transpose() * dp2_dangles + crs;
+        
         return hess;
     }
 
