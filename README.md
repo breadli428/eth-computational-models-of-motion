@@ -1,4 +1,4 @@
-# Video demo please click [YouTube playlist](https://youtube.com/playlist?list=PLhqs0Oka9VRFWdTYMr8GxIzDtfkZ76H5x)
+# YouTube video demo [here](https://youtube.com/playlist?list=PLhqs0Oka9VRFWdTYMr8GxIzDtfkZ76H5x)
 
 # Assignment 2 - Kinematic walking controller
 
