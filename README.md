@@ -1,6 +1,6 @@
 # Assignment 2 - Kinematic walking controller
 
-## Video Demo [YouTube playlist](https://youtube.com/playlist?list=PLhqs0Oka9VRFWdTYMr8GxIzDtfkZ76H5x)
+## Video demo please click [YouTube playlist](https://youtube.com/playlist?list=PLhqs0Oka9VRFWdTYMr8GxIzDtfkZ76H5x)
 
 
 **Hand-in:** Apr. 2, 2021, 18:00 CEST
