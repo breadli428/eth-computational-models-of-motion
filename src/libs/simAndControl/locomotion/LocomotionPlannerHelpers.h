@@ -251,9 +251,12 @@ private:
             // - you can get the robot's forward direction vector from robot->forward
             // - you can get the robot's sideways direction vector by RBGlobals::worldUp.cross(robot->forward)
 
-            pos = pos /* + TODO: fix this */;
-            headingAngle = headingAngle /* + TODO: fix this */;
-
+            V3D p_local = V3D(vSideways * dt, 0, vForward * dt);
+            V3D p_world = heading * p_local;
+            double pturning = turningSpeed * dt;
+            pos.x += p_world[0];
+            pos.z += p_world[2];
+            headingAngle += pturning;
             t += dt;
         }
     }
