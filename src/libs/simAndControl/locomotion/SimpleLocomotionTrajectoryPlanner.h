@@ -53,7 +53,15 @@ public:
     void initializeMotionPlan(double dt) {
         //set properties/targets needed to generate body frame motion trajectory
         bFrameMotionPlan.dt = dt;
-        bFrameMotionPlan.targetbFrameHeight = groundHeight + trunkHeight;
+        double r = sqrt(pow(robot->root->state.pos.x, 2) + pow(robot->root->state.pos.z, 2));
+        double y_increment;
+        if (r <= 3){
+            y_increment = -0.045 * pow(r,2) + 0.4;
+        }
+        else{
+            y_increment = 0;
+        }
+        bFrameMotionPlan.targetbFrameHeight = groundHeight + trunkHeight + y_increment;
         bFrameMotionPlan.targetForwardSpeed = speedForward;
         bFrameMotionPlan.targetSidewaysSpeed = speedSideways;
         bFrameMotionPlan.targetTurngingSpeed = turningSpeed;
