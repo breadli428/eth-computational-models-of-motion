@@ -194,7 +194,7 @@ P3D GeneralizedCoordinatesRobotRepresentation::getWorldCoordinates(const P3D &p,
     //
     P3D p_parent = p;
     int qIndex = getQIdxForJoint(rb->pJoint);
-    while(qIndex > 5){
+    while(qIndex > 5) {
         p_parent = getCoordsInParentQIdxFrameAfterRotation(qIndex, p_parent);
         qIndex = getParentQIdxOf(qIndex);
     }
@@ -261,14 +261,23 @@ void GeneralizedCoordinatesRobotRepresentation::compute_dpdq(const P3D &p,
 
     int qIndex = getQIdxForJoint(rb->pJoint);
     P3D p_parent = p;
-    while(getParentQIdxOf(qIndex) > 5){
+    while(qIndex > 5) {
         related_qIndex.push_back(qIndex);
         p_parent = getCoordsInParentQIdxFrameAfterRotation(qIndex, p_parent);
         qIndex = getParentQIdxOf(qIndex);
     }
     related_qIndex.push_back(qIndex);
 
-    for (int i = 3; i < q.size(); i++) {
+    V3D r_be = getWorldRotationForQ(qIndex) * V3D(p_parent);
+    for (int i = 3; i <= 5; i++) {
+        V3D axis_world = getWorldCoordsAxisForQ(i);
+        dpdq_i = axis_world.cross(r_be);
+        dpdq(0, i) = dpdq_i[0];
+        dpdq(1, i) = dpdq_i[1];
+        dpdq(2, i) = dpdq_i[2];
+    }
+
+    for (int i = 6; i < q.size(); i++) {
         if(std::find(related_qIndex.begin(), related_qIndex.end(), i) != related_qIndex.end()){
             V3D axis_world = getWorldCoordsAxisForQ(i);
             RBJoint *joint_current = getJointForQIdx(i);
