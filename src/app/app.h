@@ -118,7 +118,6 @@ public:
     // shadows cast on them
     virtual void drawObjectsWithShadows() override {
         ground.draw(shadowShader, V3D(0.6, 0.6, 0.8));
-        drawSphere(P3D(0, -10.65, 0), 11.05, shadowShader, V3D(0.6, 0.6, 0.6));
         robot->draw(shadowShader);
     }
 

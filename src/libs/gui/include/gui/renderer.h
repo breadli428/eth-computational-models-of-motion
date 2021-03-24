@@ -229,6 +229,7 @@ public:
         grid1.draw(shader, V3D(0.1, 0.1, 0.1));
         grid2.draw(shader, V3D(0.5, 0.5, 0.5));
         ground.draw(shader, col);
+        drawSphere(P3D(0, -10.65, 0), 11.05, shader, V3D(0.6, 0.6, 0.6));
     }
 };
 

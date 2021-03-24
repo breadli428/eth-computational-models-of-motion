@@ -25,10 +25,6 @@ public:
         endEffectorTargets.push_back(IK_EndEffectorTargets());
         endEffectorTargets.back().rb = rb;
         endEffectorTargets.back().p = p;
-        double r = sqrt(pow(target.x, 2) + pow(target.z, 2));
-        if (r <= 3){
-            target.y += -0.045 * pow(r,2) + 0.4;
-        }
         endEffectorTargets.back().target = target;
     }
 
