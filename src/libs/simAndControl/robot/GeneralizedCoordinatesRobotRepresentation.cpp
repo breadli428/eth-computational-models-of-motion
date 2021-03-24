@@ -255,7 +255,7 @@ void GeneralizedCoordinatesRobotRepresentation::compute_dpdq(const P3D &p,
     // TODO: your implementation should be here    
     
     P3D r_we = getWorldCoordinates(p, rb);
-    dpdq.block(0, 0, 3, 6) = Matrix::Identity(3, 6);
+    dpdq.block(0, 0, 3, 3) = Matrix::Identity(3, 3);
     std::vector<int> related_qIndex;
     V3D dpdq_i;
 
@@ -268,7 +268,7 @@ void GeneralizedCoordinatesRobotRepresentation::compute_dpdq(const P3D &p,
     }
     related_qIndex.push_back(qIndex);
 
-    for (int i = 6; i < q.size(); i++) {
+    for (int i = 3; i < q.size(); i++) {
         if(std::find(related_qIndex.begin(), related_qIndex.end(), i) != related_qIndex.end()){
             V3D axis_world = getWorldCoordsAxisForQ(i);
             RBJoint *joint_current = getJointForQIdx(i);
