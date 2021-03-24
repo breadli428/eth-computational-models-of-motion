@@ -132,7 +132,8 @@ public:
                 // in stance, we want the foot to not slip, while keeping to
                 // the ground...
                 V3D eePos = traj.getKnotValue(traj.getKnotCount() - 1);
-                double offset = std::max(sqrt(pow(11.05, 2) - (pow(eePos.x(), 2) + pow(eePos.z(), 2))) - 10.65, 0.0);
+                // add bump offset
+                double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z(), 2))) - 10.5, 0.0);
                 eePos.y() =
                     groundHeight + offset +
                     limb->ee->radius *
@@ -182,7 +183,8 @@ public:
                     V3D eePos = oldEEPos + deltaStep;
 
                     // add ground height + ee size as offset...
-                    double offset = std::max(sqrt(pow(11.05, 2) - (pow(eePos.x(), 2) + pow(eePos.z(), 2))) - 10.65, 0.0);
+                    // add bump offset
+                    double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z(), 2))) - 10.5, 0.0);
                     eePos.y() =
                         groundHeight + offset +
                         lmp.swingFootHeightTraj.evaluate_linear(
@@ -232,10 +234,11 @@ private:
         while (t < tEnd) {
             Quaternion heading =
                 getRotationQuaternion(headingAngle, V3D(0, 1, 0));
+            // add bump offset
             // pos.y = targetbFrameHeight;
-            double offset = std::max(sqrt(pow(11.05, 2) - (pow(pos.x, 2) + pow(pos.z, 2))) - 10.65, 0.0);
+            double offset = std::max(sqrt(pow(11, 2) - (pow(pos.x, 2) + pow(pos.z, 2))) - 10.5, 0.0);
             pos.y = targetbFrameHeight + offset;
-            
+
             bFramePosTrajectory.addKnot(t, V3D(pos));
             bFrameHeadingTrajectory.addKnot(t, headingAngle);
 
