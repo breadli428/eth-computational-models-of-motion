@@ -51,7 +51,7 @@ std::vector<RobotModel> robotModels = {
                "tibia_1",                                   //
                "tibia_2",                                   //
                "tibia_3",                                   //
-               0.42,                                        //
+               0.50,                                        //
                0.42,                                        //
                0.10),
 

@@ -133,7 +133,7 @@ public:
                 // the ground...
                 V3D eePos = traj.getKnotValue(traj.getKnotCount() - 1);
                 // add bump offset
-                double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z(), 2))) - 10.5, 0.0);
+                double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z() - 5, 2))) - 10.5, 0.0);
                 eePos.y() =
                     groundHeight + offset +
                     limb->ee->radius *
@@ -184,7 +184,7 @@ public:
 
                     // add ground height + ee size as offset...
                     // add bump offset
-                    double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z(), 2))) - 10.5, 0.0);
+                    double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z() - 5, 2))) - 10.5, 0.0);
                     eePos.y() =
                         groundHeight + offset +
                         lmp.swingFootHeightTraj.evaluate_linear(
@@ -236,7 +236,7 @@ private:
                 getRotationQuaternion(headingAngle, V3D(0, 1, 0));
             // add bump offset
             // pos.y = targetbFrameHeight;
-            double offset = std::max(sqrt(pow(11, 2) - (pow(pos.x, 2) + pow(pos.z, 2))) - 10.5, 0.0);
+            double offset = std::max(sqrt(pow(11, 2) - (pow(pos.x, 2) + pow(pos.z - 5, 2))) - 10.5, 0.0);
             pos.y = targetbFrameHeight + offset;
 
             bFramePosTrajectory.addKnot(t, V3D(pos));

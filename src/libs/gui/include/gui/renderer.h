@@ -230,7 +230,7 @@ public:
         grid2.draw(shader, V3D(0.5, 0.5, 0.5));
         ground.draw(shader, col);
         // add bump into sence
-        drawSphere(P3D(0, -10.5, 0), 11, shader, V3D(0.6, 0.6, 0.6));
+        drawSphere(P3D(0, -10.5, 5), 11, shader, V3D(0.6, 0.6, 0.6));
     }
 };
 
