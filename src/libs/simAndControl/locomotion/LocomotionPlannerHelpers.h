@@ -80,6 +80,7 @@ public:
     //the two are closely link, as they store complementary information
     ContactPlanManager* cpm = nullptr;
     std::map<const RobotLimb*, DynamicArray<PlannedLimbContact>> footSteps;
+    gui::Model terrain = gui::Model(CRL_DATA_FOLDER "/terrain/terrain.obj");
 
     //if the limb is in stance at time t, we'll be returning the current planned
     //position of the contact point; if the limb is in swing at time t, we'll
@@ -117,7 +118,6 @@ public:
                                         double groundHeight = 0) {
         double t = tStart;
         Trajectory3D traj;
-
         //always start the trajectory from the current location of the robot
         V3D startingEEPos = V3D(limb->getEEWorldPos());
         traj.addKnot(t, startingEEPos);
@@ -133,7 +133,10 @@ public:
                 // the ground...
                 V3D eePos = traj.getKnotValue(traj.getKnotCount() - 1);
                 // add bump offset
-                double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z() - 5, 2))) - 10.5, 0.0);
+                // double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z() - 5, 2))) - 10.5, 0.0);
+                P3D hitPoint;
+                terrain.hitByRay(P3D(eePos.x(), -1, eePos.z()), V3D(0, 10, 0), hitPoint);
+                double offset = hitPoint.y;
                 eePos.y() =
                     groundHeight + offset +
                     limb->ee->radius *
@@ -184,7 +187,10 @@ public:
 
                     // add ground height + ee size as offset...
                     // add bump offset
-                    double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z() - 5, 2))) - 10.5, 0.0);
+                    // double offset = std::max(sqrt(pow(11, 2) - (pow(eePos.x(), 2) + pow(eePos.z() - 5, 2))) - 10.5, 0.0);
+                    P3D hitPoint;
+                    terrain.hitByRay(P3D(eePos.x(), -1, eePos.z()), V3D(0, 10, 0), hitPoint);
+                    double offset = hitPoint.y;
                     eePos.y() =
                         groundHeight + offset +
                         lmp.swingFootHeightTraj.evaluate_linear(
@@ -215,6 +221,7 @@ private:
     //0-2: xyz coords of position, in world coords
     //3: heading
     typedef Eigen::Matrix<double, 4, 1> bFrameState;
+    gui::Model terrain = gui::Model(CRL_DATA_FOLDER "/terrain/terrain.obj");
 
     void generate(const bFrameState& startingbFrameState) {
         double headingAngle = startingbFrameState[3];
@@ -236,7 +243,10 @@ private:
                 getRotationQuaternion(headingAngle, V3D(0, 1, 0));
             // add bump offset
             // pos.y = targetbFrameHeight;
-            double offset = std::max(sqrt(pow(11, 2) - (pow(pos.x, 2) + pow(pos.z - 5, 2))) - 10.5, 0.0);
+            // double offset = std::max(sqrt(pow(11, 2) - (pow(pos.x, 2) + pow(pos.z - 5, 2))) - 10.5, 0.0);
+            P3D hitPoint;
+            terrain.hitByRay(P3D(pos.x, -1, pos.z), V3D(0, 10, 0), hitPoint);
+            double offset = hitPoint.y;
             pos.y = targetbFrameHeight + offset;
 
             bFramePosTrajectory.addKnot(t, V3D(pos));

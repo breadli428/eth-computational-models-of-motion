@@ -224,13 +224,15 @@ public:
     Model ground = getGroundModel(20);
     Model grid1 = Model(CRL_DATA_FOLDER "/meshes/grid1.obj");
     Model grid2 = Model(CRL_DATA_FOLDER "/meshes/grid2.obj");
+    Model terrain = Model(CRL_DATA_FOLDER "/terrain/terrain.obj");
 
     void draw(const Shader &shader, const V3D &col = V3D(0.7, 0.7, 0.9)) {
-        grid1.draw(shader, V3D(0.1, 0.1, 0.1));
-        grid2.draw(shader, V3D(0.5, 0.5, 0.5));
-        ground.draw(shader, col);
+        // grid1.draw(shader, V3D(0.1, 0.1, 0.1));
+        // grid2.draw(shader, V3D(0.5, 0.5, 0.5));
+        // ground.draw(shader, col);
+        terrain.draw(shader, col);
         // add bump into sence
-        drawSphere(P3D(0, -10.5, 5), 11, shader, V3D(0.6, 0.6, 0.6));
+        // drawSphere(P3D(0, -10.5, 5), 11, shader, V3D(0.6, 0.6, 0.6));
     }
 };
 

@@ -117,7 +117,8 @@ public:
     // objects drawn with a shadowShader (during the render pass) will have
     // shadows cast on them
     virtual void drawObjectsWithShadows() override {
-        ground.draw(shadowShader, V3D(0.6, 0.6, 0.8));
+        // ground.draw(shadowShader, V3D(0.6, 0.6, 0.8));
+        terrain.draw(shadowShader);
         robot->draw(shadowShader);
     }
 
@@ -327,7 +328,7 @@ private:
 
 public:
     SimpleGroundModel ground;
-
+    SimpleGroundModel terrain;
     LeggedRobot *robot = nullptr;
 
     // controllers
