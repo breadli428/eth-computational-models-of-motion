@@ -57,12 +57,12 @@ public:
             //   see https://eigen.tuxfamily.org/dox-devel/group__LeastSquares.html
 
             // TODO: your implementation should be here.
-            Matrix dpdq, dpdq_estimated, dpdq_analytic;
+            Matrix dpdq, dpdq_init, dpdq_estimated, dpdq_analytic;
             for (uint j = 0; j < endEffectorTargets.size(); j++){
                 // gcrr.estimate_linear_jacobian(endEffectorTargets[j].p, endEffectorTargets[j].rb, dpdq_estimated);
                 // dpdq_estimated = dpdq_estimated.block(0, 6, 3, q.size() - 6);
-                gcrr.compute_dpdq(endEffectorTargets[j].p, endEffectorTargets[j].rb, dpdq_analytic);
-                dpdq_analytic = dpdq_analytic.block(0, 6, 3, q.size() - 6);
+                gcrr.compute_dpdq(endEffectorTargets[j].p, endEffectorTargets[j].rb, dpdq_init);
+                dpdq_analytic = dpdq_init.block(0, 6, 3, q.size() - 6);
                 P3D ee_current_world = gcrr.getWorldCoordinates(endEffectorTargets[j].p, endEffectorTargets[j].rb);
                 dpdq = dpdq_analytic;
                 deltaq += (dpdq.transpose() * dpdq).ldlt().solve(dpdq.transpose() * V3D(endEffectorTargets[j].target - ee_current_world));
