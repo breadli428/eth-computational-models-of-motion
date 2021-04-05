@@ -37,7 +37,7 @@ public:
         if(std::chrono::duration_cast<std::chrono::microseconds>(now-lastFrame).count() >= 10./60. * 1.e6)
         {
             if(keyDown[GLFW_KEY_R])
-                boids.initializePositions();
+                boids.initializePositions(initialVel);
             if(keyDown[GLFW_KEY_SPACE])
                 boids.pause();
             if(keyDown[GLFW_KEY_ESCAPE])
@@ -50,21 +50,95 @@ public:
 
         using namespace ImGui;
 
-       const char* names[] = {"FreeFall", "Separation", "Alignment", "Cohesion", "Leading"};
-       Combo("Boids Behavior", (int*)&currentMethod, names, 5);
-       End();
+        const char* init_vel[] = {"Zero", "Orthogonal", "Random", "Random Positive"};
+        const char* names[] = {"FreeFall", "Separation", "Alignment", "Cohesion", "Leading", "Circular", "Collision Avoidance"};
+        const char* update_names[] = {"Explicit Euler", "Symplectic Euler", "Explicit Midpoint"};
+        Begin("Menu");
+        Combo("Initial Velocity", (int*)&initialVel, init_vel, 4);
+        if (initialVel != initialVel_temp)
+        {
+            boids.initializePositions(initialVel);
+            initialVel_temp = initialVel;
+        }
+
+        float hmin = 0.001f;
+        float hmax = 0.05f;
+        SliderScalar("Step Size", ImGuiDataType_Float, &h_read, &hmin, &hmax);
+        float fsmin = 0.5f;
+        float fsmax = 5.0f;
+        SliderScalar("Force Scaler", ImGuiDataType_Float, &f_scaler_read, &fsmin, &fsmax);
+
+        Combo("Boids Behavior", (int*)&currentMethod, names, 7);
+        if (currentMethod == SEPARATION || currentMethod == ALIGNMENT || currentMethod == COHESION)
+        {
+            float rmin = 0.01f;
+            float rmax = 2.0f;
+            SliderScalar("Range", ImGuiDataType_Float, &range_read, &rmin, &rmax);
+            drawCircles = false;
+        }
+
+        if (currentMethod == LEADING)
+        {
+            cursorDetect = true;
+            float rmin = 0.01f;
+            float rmax = 2.0f;
+            SliderScalar("Range", ImGuiDataType_Float, &range_read, &rmin, &rmax); SameLine();
+            Checkbox("Obstacle", &drawCircles);
+            if(drawCircles)
+            {
+                float omin = 0.0f;
+                float omax = 1.0f;
+                SliderScalarN("Obstacle Position and Radius", ImGuiDataType_Float, &obstacle_read, 3, &omin, &omax);
+            }
+        }
+        else cursorDetect = false;
+
+        if (currentMethod == COLLISION_AVOIDANCE)
+        {
+            float omin = 0.0f;
+            float omax = 1.0f;
+            SliderScalarN("Obstacle Position and Radius", ImGuiDataType_Float, &obstacle_read, 3, &omin, &omax);
+            drawCircles = true;
+        }
+
+
+        Combo("Method", (int*)&updateRule, update_names, 3);
+        End();
     }
 
     void drawNanoVG() override {
         
-        boids.updateBehavior(currentMethod);
+        boids.read_parameters(h_read, f_scaler_read, range_read, obstacle_read, drawCircles);
+        boids.updateBehavior(currentMethod, updateRule);
         
         TVStack boids_pos = boids.getPositions();
 
         auto shift_01_to_screen = [](TV pos_01, T scale, T width, T height)
         {
-            return TV(0.5 * (0.5 - scale) * width + scale * pos_01[0] * width, 0.5 * (0.5 - scale) * height + scale * pos_01[1] * height);
+            return TV(0.5 * (0.8 - scale) * width + scale * pos_01[0] * width, 0.5 * (0.8 - scale) * height + scale * pos_01[1] * height);
         };
+
+        auto shift_screen_to_01 = [](TV screen_pos, T scale, T width, T height)
+        {
+            return TV((screen_pos[0] - 0.5 * (0.8 - scale) * width) / (scale * width), (screen_pos[1] - 0.5 * (0.8 - scale) * height) / (scale * height));
+        };
+
+        if(drawCircles)
+        {
+            T scale = 0.3f;
+            circle_obstacle_start = shift_01_to_screen(obstacle_read.pos, scale, width, height);
+            circle_obstacle = {circle_obstacle_start, scale * obstacle_read.radius * width, COLOR_SOLVED, nvgRGBA(10, 10, 10, 255)};
+            auto drawCircle = [this](const Circle &circle){
+                nvgBeginPath(vg);
+                nvgCircle(vg, circle.pos[0], circle.pos[1], circle.radius);
+                nvgFillColor(vg, circle.colorFill);
+                nvgFill(vg);
+                nvgStrokeColor(vg, circle.colorStroke);
+                nvgStrokeWidth(vg, 3.0f);
+                nvgStroke(vg);
+            };
+            drawCircle(circle_obstacle);
+        }
 
         for(int i = 0; i < boids.getParticleNumber(); i++)
         {
@@ -74,14 +148,28 @@ public:
             // just map position from 01 simulation space to scree space
             // feel free to make changes
             // the only thing that matters is you have pos computed correctly from your simulation
-            T scale = 0.3;
+            T scale = 0.3f;
             TV screen_pos = shift_01_to_screen(TV(pos[0], pos[1]), scale, width, height);
             nvgCircle(vg, screen_pos[0], screen_pos[1], 2.f);
-            nvgFillColor(vg, COLOR_OUT);
+            if(i == 0 && cursorDetect)
+            {
+                nvgFillColor(vg, COLOR_IN);
+            }
+            else nvgFillColor(vg, COLOR_OUT);
             nvgFill(vg);
 
         }
 
+        if(cursorDetect)
+        {
+            if(mouseState.lButtonPressed && mouseState.lastMouseX < width)
+            {
+            cursorPosDown = TV(mouseState.lastMouseX, mouseState.lastMouseY);
+            }
+            T scale = 0.3f;
+            TV target_pos_read = shift_screen_to_01(cursorPosDown, scale, width, height);
+            boids.read_cursor(target_pos_read);
+        }
     }
 
 protected:
@@ -113,9 +201,28 @@ private:
 private:
 
     MethodTypes currentMethod = FREEFALL;
-
+    UpdateTypes updateRule = EXPLICIT_EULER;
+    InitTypes initialVel = ZERO;
+    InitTypes initialVel_temp = ZERO;
     Boids<T, dim> boids = Boids<T, dim>(40);
     std::chrono::high_resolution_clock::time_point lastFrame;
+    float h_read = 0.02f;
+    float f_scaler_read = 2.0f;
+    float range_read = 0.5f;
+
+    bool drawCircles = false;
+    TV circle_obstacle_start;
+    struct Circle
+    {
+        TV pos;
+        float radius;
+        NVGcolor colorFill, colorStroke;
+    } circle_obstacle;
+
+    Boids<T, dim>::Obstacle obstacle_read = {TV(0.5f, 0.5f), 0.2f};
+
+    bool cursorDetect = false;
+    TV cursorPosDown = TV(360.0f, 360.0f);
 };
 
 int main(int, char**)
