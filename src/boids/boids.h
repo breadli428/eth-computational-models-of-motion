@@ -105,10 +105,10 @@ public:
         }
         switch (rule)
         {
-            case 0: explicit_euler(h, method); break;
-            case 1: symplectic_euler(h, method); break;
-            case 2: explicit_midpoint(h, method); break;
-            default: explicit_euler(h, method); break;
+            case 0: explicit_euler(method); break;
+            case 1: symplectic_euler(method); break;
+            case 2: explicit_midpoint(method); break;
+            default: explicit_euler(method); break;
         }
     }
     void pause()
@@ -181,7 +181,7 @@ public:
         return count;
     }
 
-    void explicit_euler(float h, std::function<TVStack(TVStack)> method)
+    void explicit_euler(std::function<TVStack(TVStack)> method)
     {
         TVStack positions_temp = positions;
         positions += h * velocities;
@@ -189,7 +189,7 @@ public:
         velocities += h * f;
     }
 
-    void symplectic_euler(float h, std::function<TVStack(TVStack)> method)
+    void symplectic_euler(std::function<TVStack(TVStack)> method)
     {
         positions += h * velocities;
         TVStack positions_temp = positions;
@@ -197,7 +197,7 @@ public:
         velocities += h * f;
     }
 
-    void explicit_midpoint(float h, std::function<TVStack(TVStack)> method)
+    void explicit_midpoint(std::function<TVStack(TVStack)> method)
     {
         TVStack positions_temp = positions;
         TVStack positions_temp_half = positions_temp + h / 2 * velocities;
