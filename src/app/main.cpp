@@ -34,13 +34,16 @@ public:
 
     void process() override {
         std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-        if(std::chrono::duration_cast<std::chrono::microseconds>(now-lastFrame).count() >= 10./60. * 1.e6)
+        if (std::chrono::duration_cast<std::chrono::microseconds>(now-lastFrame).count() >= 10./60. * 1.e6)
         {
-            if(keyDown[GLFW_KEY_R])
+            if (keyDown[GLFW_KEY_R])
+            {
+                boids = Boids<T, dim>(40);
                 boids.initializePositions(initialVel);
-            if(keyDown[GLFW_KEY_SPACE])
+            }
+            if (keyDown[GLFW_KEY_SPACE])
                 boids.pause();
-            if(keyDown[GLFW_KEY_ESCAPE])
+            if (keyDown[GLFW_KEY_ESCAPE])
                 exit(0);
             lastFrame = now;
         }
@@ -51,7 +54,7 @@ public:
         using namespace ImGui;
 
         const char* init_vel[] = {"Zero", "Orthogonal", "Random", "Random Positive"};
-        const char* names[] = {"FreeFall", "Separation", "Alignment", "Cohesion", "Leading", "Circular", "Collision Avoidance"};
+        const char* names[] = {"FreeFall", "Separation", "Alignment", "Cohesion", "Leading", "Circular", "Collision Avoidance", "Collaboration and Adversary"};
         const char* update_names[] = {"Explicit Euler", "Symplectic Euler", "Explicit Midpoint"};
         Begin("Menu");
         Combo("Initial Velocity", (int*)&initialVel, init_vel, 4);
@@ -68,7 +71,7 @@ public:
         float fsmax = 5.0f;
         SliderScalar("Force Scaler", ImGuiDataType_Float, &f_scaler_read, &fsmin, &fsmax);
 
-        Combo("Boids Behavior", (int*)&currentMethod, names, 7);
+        Combo("Boids Behavior", (int*)&currentMethod, names, 8);
         if (currentMethod == SEPARATION || currentMethod == ALIGNMENT || currentMethod == COHESION)
         {
             float rmin = 0.01f;
@@ -101,6 +104,18 @@ public:
             drawCircles = true;
         }
 
+        if (currentMethod == COLLABORATION_ADVERSARY)
+        {
+            float rmin = 0.01f;
+            float rmax = 0.2f;
+            SliderScalar("Range", ImGuiDataType_Float, &range_read, &rmin, &rmax);
+            divideGroup = true;
+            drawCircles = false;
+            const char* control_group_list[] = {"Red Only", "Blue Only", "Both"};
+            Combo("Control Group", (int*)&control_group_read, control_group_list, 3);
+        }
+        else divideGroup = false;
+
 
         Combo("Method", (int*)&updateRule, update_names, 3);
         End();
@@ -108,7 +123,7 @@ public:
 
     void drawNanoVG() override {
         
-        boids.read_parameters(h_read, f_scaler_read, range_read, obstacle_read, drawCircles);
+        boids.read_parameters(h_read, f_scaler_read, range_read, obstacle_read, drawCircles, control_group_read);
         boids.updateBehavior(currentMethod, updateRule);
         
         TVStack boids_pos = boids.getPositions();
@@ -123,7 +138,7 @@ public:
             return TV((screen_pos[0] - 0.5 * (0.8 - scale) * width) / (scale * width), (screen_pos[1] - 0.5 * (0.8 - scale) * height) / (scale * height));
         };
 
-        if(drawCircles)
+        if (drawCircles)
         {
             T scale = 0.3f;
             circle_obstacle_start = shift_01_to_screen(obstacle_read.pos, scale, width, height);
@@ -140,29 +155,50 @@ public:
             drawCircle(circle_obstacle);
         }
 
-        for(int i = 0; i < boids.getParticleNumber(); i++)
+        if (divideGroup)
         {
-            TV pos = boids_pos.col(i);
-            nvgBeginPath(vg);
-    
-            // just map position from 01 simulation space to scree space
-            // feel free to make changes
-            // the only thing that matters is you have pos computed correctly from your simulation
-            T scale = 0.3f;
-            TV screen_pos = shift_01_to_screen(TV(pos[0], pos[1]), scale, width, height);
-            nvgCircle(vg, screen_pos[0], screen_pos[1], 2.f);
-            if(i == 0 && cursorDetect)
+            for (int i = 0; i < boids_pos.cols(); i++)
             {
-                nvgFillColor(vg, COLOR_IN);
+                Eigen::MatrixXi group_label = boids.getGroupLabel();
+                TV pos = boids_pos.col(i);
+                nvgBeginPath(vg);
+                T scale = 0.3f;
+                TV screen_pos = shift_01_to_screen(TV(pos[0], pos[1]), scale, width, height);
+                nvgCircle(vg, screen_pos[0], screen_pos[1], 2.f);
+                if (group_label(0, i) == 0)
+                {
+                    nvgFillColor(vg, COLOR_OUT);
+                }
+                else nvgFillColor(vg, COLOR_IN);
+                nvgFill(vg);
             }
-            else nvgFillColor(vg, COLOR_OUT);
-            nvgFill(vg);
-
+        }
+        else
+        {
+            for (int i = 0; i < boids.getParticleNumber(); i++)
+            {
+                TV pos = boids_pos.col(i);
+                nvgBeginPath(vg);
+        
+                // just map position from 01 simulation space to scree space
+                // feel free to make changes
+                // the only thing that matters is you have pos computed correctly from your simulation
+                T scale = 0.3f;
+                TV screen_pos = shift_01_to_screen(TV(pos[0], pos[1]), scale, width, height);
+                nvgCircle(vg, screen_pos[0], screen_pos[1], 2.f);
+                if (i == 0 && cursorDetect)
+                {
+                    nvgFillColor(vg, COLOR_IN);
+                }
+                else nvgFillColor(vg, COLOR_OUT);
+                nvgFill(vg);
+            }
         }
 
-        if(cursorDetect)
+
+        if (cursorDetect)
         {
-            if(mouseState.lButtonPressed && mouseState.lastMouseX < width)
+            if (mouseState.lButtonPressed && mouseState.lastMouseX < width)
             {
             cursorPosDown = TV(mouseState.lastMouseX, mouseState.lastMouseY);
             }
@@ -223,6 +259,9 @@ private:
 
     bool cursorDetect = false;
     TV cursorPosDown = TV(360.0f, 360.0f);
+
+    bool divideGroup = false;
+    ControlGroup control_group_read = BOTH;
 };
 
 int main(int, char**)

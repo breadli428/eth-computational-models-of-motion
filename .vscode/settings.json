@@ -95,6 +95,9 @@
         "xtree": "cpp",
         "orderingmethods": "cpp",
         "matrixfunctions": "cpp",
-        "polynomials": "cpp"
+        "polynomials": "cpp",
+        "*.expression": "cpp",
+        "coroutine": "cpp",
+        "resumable": "cpp"
     }
 }
