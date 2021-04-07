@@ -65,7 +65,7 @@ public:
         }
 
         float hmin = 0.001f;
-        float hmax = 0.05f;
+        float hmax = 0.5f;
         SliderScalar("Step Size", ImGuiDataType_Float, &h_read, &hmin, &hmax);
         float fsmin = 0.5f;
         float fsmax = 5.0f;
@@ -111,8 +111,8 @@ public:
             SliderScalar("Range", ImGuiDataType_Float, &range_read, &rmin, &rmax);
             divideGroup = true;
             drawCircles = false;
-            const char* control_group_list[] = {"Red Only", "Blue Only", "Both"};
-            Combo("Control Group", (int*)&control_group_read, control_group_list, 3);
+            const char* control_group_list[] = {"Neither", "Red Only", "Blue Only", "Both"};
+            Combo("Control Group", (int*)&control_group_read, control_group_list, 4);
         }
         else divideGroup = false;
 

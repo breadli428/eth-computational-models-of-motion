@@ -23,7 +23,7 @@ enum UpdateTypes {
     };
 
 enum ControlGroup {
-        RED=0, BLUE=1, BOTH=2
+        NEITHER=0, RED=1, BLUE=2, BOTH=3
     };
 
 template <class T, int dim>
@@ -418,6 +418,7 @@ public:
             switch (control_group)
             // apply control strategy to diffent control group
             {
+                case NEITHER: control_flag_ad = 0; break;
                 case RED: if (group_label_copy(0, i) == 0) control_flag_co = 1; break;
                 case BLUE: if (group_label_copy(0, i) == 1) control_flag_co = 1; break;
                 case BOTH: control_flag_co = 1; break;
@@ -448,6 +449,7 @@ public:
                 switch (control_group)
                 // apply control strategy to diffent control group
                 {
+                    case NEITHER: control_flag_ad = 0; break;
                     case RED: if (group_label_copy(0, i) == 0) control_flag_ad = 1; break;
                     case BLUE: if (group_label_copy(0, i) == 1) control_flag_ad = 1; break;
                     case BOTH: control_flag_ad = 1; break;
