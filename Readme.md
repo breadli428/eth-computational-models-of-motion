@@ -63,7 +63,7 @@ This feature denotes the Boids behaviors required to be implemented including:
 
 A *constant gravity* is applied on each Boid.
 
-> You are free to choose different initialization methods as required.
+> You are free to choose any initialization method as desired.
 
 This feature is realized in the function `TVStack freefall(TVStack positions_temp)`.
 
@@ -116,7 +116,7 @@ Please select the initial velocities to be orthogonal to initial positions to vi
 
 A *constant centripetal force* is applied on each Boid so as to encourage circular motion in the plane.
 
-> You are free to choose different initialization methods as required. In particular, in the case when orthogonal initial velocities are chosen, circular motion of Boids can be observed. For each of the three integration schemes, experiment with different step sizes shows their difference in energy conservation.
+> You are free to choose any initialization method as desired. In particular, in the case when orthogonal initial velocities are chosen, circular motion of Boids can be observed. For each of the three integration schemes, experiment with different step sizes shows their difference in energy conservation.
 > 
 > In the case where the explict Euler method is implemented, the radii of the circular motion of the Boids increase gradually, i.e. the Boids are shifted away from the center, showing that the total energy of the system increases steadily when the explicit Euler method is applied. This behavior is escalated with the growth of step size, which indicates that the explicit Euler method overshoots for strongly attractive fixed-points and large time steps.
 > 
@@ -162,7 +162,7 @@ distance to each other.
 
 Please refer to the code annotation for a detailed documentation of realization.
 
-> You are free to choose any initialization method and any of the update rule. In particular, the symplectic Euler method with random initial positions and velocities can be used to observe the evolution of the populations as required.
+> You are free to choose any initialization method and any of the update rule as desired. In particular, the symplectic Euler method with random initial positions and velocities can be used to observe the evolution of the populations as required.
 > 
 > When no control strategy is applied, the populations of the two groups behave well in accordance with the rules defined above. However this is not the best case to observe the evolution of the system, since the Boids will scatter away due to their random initial velocities.
 > 
