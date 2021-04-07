@@ -174,7 +174,7 @@ Please refer to the video demos for a better understanding of the group behavior
 
 This feature is realized in the function `TVStack collaboration_adversary(TVStack positions_temp)`.
 
-### Recommended Parameter
+### Recommended Parameters
 
 To observe an articulated simulation result, a set of recommended parameters are provided. In most cases, they are set to be the default value. An overview of recommended parameters is listed here:
 
