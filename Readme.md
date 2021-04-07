@@ -134,13 +134,13 @@ Please refer to the code annotation for a detailed documentation of realization.
 
 To observe an articulated simulation result, a set of recommended parameters are provided. In most cases, they are set to be the default value. An overview of recommended parameters is listed here:
 
-| Initial Velocities | Step Size | Force Scaler | Boids Behavior              | Range |
-| ------------------ | --------- | ------------ | --------------------------- | ----- |
-| -                  | 0.02      | 2.00         | Free Fall                   | -     |
-| -                  | 0.02      | 2.00         | Separation                  | 0.50  |
-| -                  | 0.02      | 2.00         | Alignment                   | 0.50  |
-| -                  | 0.02      | 2.00         | Cohesion                    | 0.50  |
-| -                  | 0.02      | 2.00         | Leading                     | 0.50  |
-| Orthogonal         | 0.02      | 2.00         | Circular                    | -     |
-| -                  | 0.02      | 2.00         | Collision Avoidance         | -     |
-| -                  | 0.02      | 2.00         | Collaboration and Adversary | 0.10  |
+| Initial Velocities 	| Step Size 	| Force Scaler 	| Boids Behavior              	| Range 	|
+|--------------------	|-----------	|--------------	|-----------------------------	|-------	|
+| -                  	| 0.02      	| 2.00         	| Free Fall                   	| -     	|
+| -                  	| 0.02      	| 2.00         	| Separation                  	| 0.50  	|
+| -                  	| 0.02      	| 2.00         	| Alignment                   	| 0.50  	|
+| -                  	| 0.02      	| 2.00         	| Cohesion                    	| 0.50  	|
+| -                  	| 0.02      	| 2.00         	| Leading                     	| 0.50  	|
+| Orthogonal         	| 0.02      	| 2.00         	| Circular                    	| -     	|
+| -                  	| 0.02      	| 2.00         	| Collision Avoidance         	| -     	|
+| -                  	| 0.02      	| 2.00         	| Collaboration and Adversary 	| 0.10  	|
