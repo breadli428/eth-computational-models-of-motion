@@ -225,6 +225,7 @@ public:
                 if ((positions_temp.col(i) - positions_temp.col(j)).norm() <= range)
                 {
                     f_scaler = 1 / pow((positions_temp.col(i) - positions_temp.col(j) + TV(2.0f, 2.0f)).norm(), 2);
+                    // an offset term is considered to generate a mild force feedback and reduce overshoot
                     f.col(i) += f_scaler * (positions_temp.col(i) - positions_temp.col(j)).normalized();
                 }
             }
@@ -274,6 +275,7 @@ public:
             }
             TV center = neighbor.rowwise().sum() / neighbor_count;
             f.col(i) = f_scaler * (center - positions_temp.col(i)) - 0.2f * velocities.col(i);
+            // a PD controller is considered to generate a mild force feedback and reduce overshoot
         }
         return f;
     }
@@ -284,6 +286,7 @@ public:
         TVStack f_repulsion = TVStack::Zero(dim, n);
         TVStack f_obs = TVStack::Zero(dim, n);
         f.col(0) = f_scaler * (target_pos - positions_temp.col(0)) - 2.0f * velocities.col(0);
+        // a PD controller is considered to generate a mild force feedback and reduce overshoot
         for (int i = 1; i < positions_temp.cols(); i++)
         {
             if ((positions_temp.col(0) - positions_temp.col(i)).norm() <= range)
@@ -317,6 +320,7 @@ public:
                 {
                     positions.col(i) = obstacle.pos + (positions_temp.col(i) - obstacle.pos).normalized() * (safety_coefficient * obstacle.radius);
                     f_scaler = 1.0f / pow((positions_temp.col(i) - obstacle.pos + TV(0.6f, 0.6f)).norm(), 2);
+                    // an offset term is considered to generate a mild force feedback and reduce overshoot
                     f.col(i) = f_scaler * (positions_temp.col(i) - obstacle.pos).normalized();
                 }
         }
@@ -332,39 +336,38 @@ public:
         // collection of the indices of columns to be removed
         for (int i = 0; i < positions_temp.cols(); i++)
         {
-            TVStack neighbor = TVStack::Zero(dim, n);
-            // collection of alerting neighbors of boid i within 2.0f * range, where a repulsive force will be applied
-            int neighbor_count = 0;
-            // count of alerting neighbors described above
+            TVStack neighbor_co = TVStack::Zero(dim, n);
+            // [co] collection of neighbors of boid i from the same group within 5.0f * range, where an attractive force will be applied
+            int neighbor_count_co = 0;
+            // [co] count of collaborative neighbors of boid i described above
+            TVStack neighbor_diff = TVStack::Zero(dim, n);
+            // [ad] collection of neighbors of boid i from the different group within 5.0f * range, where a repulsive force will be applied
+            int neighbor_count_diff = 0;
+            // [ad] count of neighbors described above
+            int neighbor_count_same = 0;
+            // [ad] count of neighbors of boid i from the same group within 5.0f * range
             int neighbor_count_ad = 0;
-            // count of adversarial neighbors of boid i within range, where boid i will be removed if neighbor_count_ad >= 3
+            // [ad] count of adversarial neighbors of boid i within range, where boid i will be removed if neighbor_count_ad >= 3
+            int control_flag_co = 0;
+            // [co] collaborative behavior control flag, 1 = enabled
             int control_flag_ad = 0;
-            // adversarial behavior control flag, 1 = enabled
+            // [ad] adversarial behavior control flag, 1 = enabled
             int removed_cols_count_before_i = removed_cols_before_count(removed_cols_ind_collection, i);
             // number of columns removed in list removed_cols_ind_collection prior to i
+
             for (int j = 0; j < positions_temp.cols(); j++)
             {
                 float dist = (positions_temp.col(i) - positions_temp.col(j)).norm();
                 // distance between boid i and j
                 int removed_cols_count_before_j = removed_cols_before_count(removed_cols_ind_collection, j);
                 // number of columns removed in list removed_cols_ind_collection prior to j
-                int control_flag_co = 0;
-                // collaborative behavior control flag, 1 = enabled
                 if (i != j && dist <= 5.0f * range && group_label_copy(0, i) == group_label_copy(0, j))
                 // check if dist <= 5.0f * range within which attraction force is applied and check if they are from the same group
                 {
-                    switch (control_group)
-                    // apply control strategy to diffent control group
-                    {
-                        case RED: if (group_label_copy(0, i) == 0) control_flag_co = 1; break;
-                        case BLUE: if (group_label_copy(0, i) == 1) control_flag_co = 1; break;
-                        case BOTH: control_flag_co = 1; break;
-                        default: control_flag_co = 1; break;
-                    }
-                    if (control_flag_co)
-                    // collaborative behavior control enabled only when control_flag_co = 1
-                        f.col(i - removed_cols_count_before_i) = f_scaler * (positions_temp.col(j) - positions_temp.col(i)) - 0.5f * velocities.col(i - removed_cols_count_before_i);
-                        // force is calculated using PD control law
+                    neighbor_co.col(j - removed_cols_count_before_j) = positions_temp.col(j);
+                    // collect neighbors of boid i from the same group
+                    neighbor_count_co++;
+                    // increase the number of neighbors of boid i from the same group by 1
                     if (dist <= range  && group_label_copy(1, i) == 0 && group_label_copy(1, j) == 0)
                     // check further if dist <= range and boid i and j are both allowed to reproduce
                     {
@@ -382,34 +385,66 @@ public:
                         // add a column to velocities with average velocities between boid i and j
                         add_column(f, TV(0.0f, 0.0f));
                         // add a column to f with zeros
-                        add_column(neighbor, TV(0.0f, 0.0f));
+                        add_column(neighbor_diff, TV(0.0f, 0.0f));
                         // add a column to neighbor with zeros
                         n++;
                         // increase the total number of boids by 1
                     }
                 }
 
-                if (i != j && dist <= 2.0f * range && group_label_copy(0, i) != group_label_copy(0, j))
-                // check if dist <= 2.0f * range within which repulsion force is applied and check if they are from different groups
+                if (i != j && dist <= 5.0f * range)
+                // check if dist <= 5.0f * range within which repulsion force is applied
                 {
-                    neighbor.col(j - removed_cols_count_before_j) = positions_temp.col(j);
-                    // collect alerting neighbors of boid i
-                    neighbor_count++;
-                    // increase the number of alerting neighbors of boid i by 1
-                    if (dist <= range)
-                    // check further if dist <= range
-                        neighbor_count_ad++;
-                        // increase the number of adversarial neighbors of boid i by 1
+                    if (group_label_copy(0, i) != group_label_copy(0, j))
+                    // check if they are from different groups
+                    {
+                        neighbor_diff.col(j - removed_cols_count_before_j) = positions_temp.col(j);
+                        // collect neighbors of boid i from the different group
+                        neighbor_count_diff++;
+                        // increase the number of neighbors of boid i from the different group by 1
+                        if (dist <= range)
+                        // check further if dist <= range
+                            neighbor_count_ad++;
+                            // increase the number of adversarial neighbors of boid i by 1
+                    }
+                    else
+                    neighbor_count_same++;
+                    // // increase the number of neighbors of boid i from the same group by 1
                 }
             }
 
-            if (neighbor_count >= 10)
-            // check if the number of alerting neighbors of boid i >= 10
+            TV center_co = neighbor_co.rowwise().sum() / neighbor_count_co;
+            // [co] calculate the average position of neighbors of i from the same group
+            switch (control_group)
+            // apply control strategy to diffent control group
             {
-                TV center = neighbor.rowwise().sum() / neighbor_count;
-                // calculate the average position of alerting neighbors of boid i
-                f_scaler = 1 / pow((positions_temp.col(i) - center + TV(10.0f, 10.0f)).norm(), 2);
-                // calculate f_scaler inversely proportional to the sqaure of distance between boid i and the average position
+                case RED: if (group_label_copy(0, i) == 0) control_flag_co = 1; break;
+                case BLUE: if (group_label_copy(0, i) == 1) control_flag_co = 1; break;
+                case BOTH: control_flag_co = 1; break;
+                default: control_flag_co = 1; break;
+            }
+            if (control_flag_co)
+            // collaborative behavior control enabled only when control_flag_co = 1
+                f.col(i - removed_cols_count_before_i) = f_scaler * (center_co - positions_temp.col(i)) - 0.5f * velocities.col(i - removed_cols_count_before_i);
+                // force is calculated using PD control law
+
+            if (neighbor_count_diff >= 1)
+            // [ad] check if the number of neighbors of boid i from the different group >= 10
+            {
+                TV center_ad = neighbor_diff.rowwise().sum() / neighbor_count_diff;
+                // [ad] calculate the average position of neighbors of i from the different group
+                float f_scaler_local = 0;
+                // initialize the local force scaler
+                if (neighbor_count_diff - neighbor_count_same >= 3)
+                // if the number of neighbors from the different group is larger than those from the same group by 3
+                    f_scaler_local = 1 / pow((positions_temp.col(i) - center_ad + TV(1.0f, 1.0f)).norm(), 2);
+                    // calculate f_scaler_local inversely proportional to the sqaure of distance between boid i and the average position
+                    // that drives boid i away
+                else if (neighbor_count_same - neighbor_count_diff >= 3)
+                // else if the number of neighbors from the same group is larger than those from the different group by 3
+                    f_scaler_local = -1 / pow((positions_temp.col(i) - center_ad + TV(1.0f, 1.0f)).norm(), 2);
+                    // calculate f_scaler_local inversely proportional to the sqaure of distance between boid i and the average position
+                    // in a different direction that drives boid i towards the group
                 switch (control_group)
                 // apply control strategy to diffent control group
                 {
@@ -420,7 +455,7 @@ public:
                 }
                 if (control_flag_ad)
                     // adversarial behavior control enabled only when control_flag_ad = 1
-                    f.col(i - removed_cols_count_before_i) += f_scaler * (positions_temp.col(i) - center).normalized();
+                    f.col(i - removed_cols_count_before_i) += f_scaler_local * (positions_temp.col(i) - center_ad).normalized();
                     // force is calculated as the product of f_scaler and the direction pointing from the average position to boid i
             }
             
@@ -431,7 +466,7 @@ public:
                 remove_column(group_label, i - removed_cols_count_before_i);
                 remove_column(velocities, i - removed_cols_count_before_i);
                 remove_column(f, i - removed_cols_count_before_i);
-                remove_column(neighbor, i - removed_cols_count_before_i);
+                remove_column(neighbor_diff, i - removed_cols_count_before_i);
                 // remove the column corresponding to index i in positions_temp
                 n--;
                 // decrease the total number of boids by 1

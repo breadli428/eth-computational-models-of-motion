@@ -54,10 +54,10 @@ public:
         using namespace ImGui;
 
         const char* init_vel[] = {"Zero", "Orthogonal", "Random", "Random Positive"};
-        const char* names[] = {"FreeFall", "Separation", "Alignment", "Cohesion", "Leading", "Circular", "Collision Avoidance", "Collaboration and Adversary"};
+        const char* names[] = {"Free Fall", "Separation", "Alignment", "Cohesion", "Leading", "Circular", "Collision Avoidance", "Collaboration and Adversary"};
         const char* update_names[] = {"Explicit Euler", "Symplectic Euler", "Explicit Midpoint"};
         Begin("Menu");
-        Combo("Initial Velocity", (int*)&initialVel, init_vel, 4);
+        Combo("Initial Velocities", (int*)&initialVel, init_vel, 4);
         if (initialVel != initialVel_temp)
         {
             boids.initializePositions(initialVel);
@@ -117,7 +117,7 @@ public:
         else divideGroup = false;
 
 
-        Combo("Method", (int*)&updateRule, update_names, 3);
+        Combo("Update Method", (int*)&updateRule, update_names, 3);
         End();
     }
 
@@ -143,7 +143,8 @@ public:
             T scale = 0.3f;
             circle_obstacle_start = shift_01_to_screen(obstacle_read.pos, scale, width, height);
             circle_obstacle = {circle_obstacle_start, scale * obstacle_read.radius * width, COLOR_SOLVED, nvgRGBA(10, 10, 10, 255)};
-            auto drawCircle = [this](const Circle &circle){
+            auto drawCircle = [this](const Circle &circle)
+            {
                 nvgBeginPath(vg);
                 nvgCircle(vg, circle.pos[0], circle.pos[1], circle.radius);
                 nvgFillColor(vg, circle.colorFill);
