@@ -122,7 +122,7 @@ A *constant centripetal force* is applied on each Boid so as to encourage circul
 > 
 > In comparison, the lengths of radii are well preserved when the symplectic Euler method is implemented, which indicates that it almost conserves the energy.
 > 
-> Eventually in the case where the explicit midpoint method is implemented, the Boids still shift outwards, but with a slower process compared with the explict Euler method. This is because the explicit midpoint method accumulates error of order $O(h^2)$, while the explict Euler method does of order $O(h)$. Therefore, while the explicit midpoint method is more computationally intensive than the other two methods, error generally decreases faster as $h \rightarrow 0$.
+> Eventually in the case where the explicit midpoint method is implemented, the Boids still shift outwards, but with a slower process compared with the explict Euler method. This is because the explicit midpoint method accumulates error of order $O(h^2)$, while the explict Euler method does of order $O(h)$. Therefore, while the explicit midpoint method is more computationally intensive than the other two methods, error generally decreases faster as h approaches 0.
 
 This feature is realized in the function `TVStack circular(TVStack positions_temp)`.
 
