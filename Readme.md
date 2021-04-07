@@ -202,35 +202,18 @@ For each Boids behavior, you are free to choose any of the three update rules. H
 
 ### Explicit Euler
 
-$$
-\begin{aligned}
-    x_{n+1} & = x_{n} + h v_n \\
-    v_{n+1} & = v_{n} + h M^{-1} f(x_n)
-\end{aligned}
-$$
+![figure: explicit_euler](imgs/explicit_euler.png)
 
 This feature is realized in the function `void explicit_euler(std::function<TVStack(TVStack)> method)`.
 
 ### Symplectic Euler
 
-$$
-\begin{align}
-    x_{n+1} & = x_{n} + h v_n \\
-    v_{n+1} & = v_{n} + h M^{-1} f(x_{n+1}) \\
-\end{align}
-$$
+![figure: symplectic_euler](imgs/symplectic_euler.png)
 
 This feature is realized in the function `void symplectic_euler(std::function<TVStack(TVStack)> method)`.
 
-### Explicit Euler
+### Explicit Midpoint
 
-$$
-\begin{aligned}
-    x_{n+1/2} & = x_{n} + \frac{h}{2} v_n \\
-    v_{n+1/2} & = v_{n} + \frac{h}{2} M^{-1} f(x_n) \\
-    x_{n+1} & = x_{n} + h v_{n+1/2} \\
-    v_{n+1} & = v_{n} + h M^{-1} f(x_{n+1/2}) \\
-\end{aligned}
-$$
+![figure: explicit_midpoint](imgs/explicit_midpoint.png)
 
 This feature is realized in the function `void explicit_midpoint(std::function<TVStack(TVStack)> method)`.
