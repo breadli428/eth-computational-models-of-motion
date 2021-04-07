@@ -8,7 +8,7 @@ This is an overall `readme.md` file which introduces features of the program and
 
 ## Demos
 
-YouTube video demos please click [here] (https://youtube.com/playlist?list=PLhqs0Oka9VRFcWf9pR34oIPB75XVvmQ10).
+YouTube video demos please click [here](https://youtube.com/playlist?list=PLhqs0Oka9VRFcWf9pR34oIPB75XVvmQ10).
 
 There are two versions of the video demo. While the shorter version shows the feature of the program, the longer version in addition provides a full description on detailed information of the program.
 
