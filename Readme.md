@@ -214,10 +214,10 @@ This feature is realized in the function `void explicit_euler(std::function<TVSt
 ### Symplectic Euler
 
 $$
-\begin{aligned}
+\begin{align}
     x_{n+1} & = x_{n} + h v_n \\
     v_{n+1} & = v_{n} + h M^{-1} f(x_{n+1}) \\
-\end{aligned}
+\end{align}
 $$
 
 This feature is realized in the function `void symplectic_euler(std::function<TVStack(TVStack)> method)`.
