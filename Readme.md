@@ -8,7 +8,7 @@ This is an overall `readme.md` file which introduces features of the program and
 
 ## Demos
 
-YouTube video demos please click [here](https://youtube.com/playlist?list=PLhqs0Oka9VRFcWf9pR34oIPB75XVvmQ10).
+YouTube video demos please click [here](https://youtube.com/playlist?list=PLhqs0Oka9VRG8J9oBzlIMUqhRhAJw5KuN).
 
 There are two versions of the video demo. While the shorter version shows the features of the program, the longer version in addition provides a full description on detailed tutorial and realization of them.
 
@@ -26,6 +26,8 @@ There are several features that you can choose:
 - Force Scaler
 - Boids Behavior
 - Update Method
+
+For the video demo of the interface please click [here](https://youtu.be/anLgoGm4MTg).
 
 ## Initial Velocities
 
@@ -69,6 +71,8 @@ A *constant gravity* is applied on each Boid.
 
 This feature is realized in the function `TVStack freefall(TVStack positions_temp)`.
 
+For the video demo of this feature please click [here](https://youtu.be/Znz7n1hWsGs).
+
 ### Seperation
 
 A slidebar will pop up and you can change affecting range of the behavior.
@@ -76,6 +80,8 @@ A slidebar will pop up and you can change affecting range of the behavior.
 If two Boids have a distance smaller than the range defined above, a repulsive force that is *inversely proportional to the square of the distance* will be applied. In order to generate a mild force feedback and reduce overshoot, an offset term is considered in the force formulation.
 
 This feature is realized in the function `TVStack separation(TVStack positions_temp)`.
+
+For the video demo of this feature please click [here](https://youtu.be/priJRnoWpeQ).
 
 ### Alignment
 
@@ -85,6 +91,8 @@ For Boid i, if another Boid j lies within the range defined above, j is collecte
 
 This feature is realized in the function `TVStack alignment(TVStack positions_temp)`.
 
+For the video demo of this feature please click [here](https://youtu.be/pj1iIG5AIhk).
+
 ### Cohesion
 
 A slidebar will pop up and you can change affecting range of the behavior.
@@ -92,6 +100,8 @@ A slidebar will pop up and you can change affecting range of the behavior.
 For Boid i, if another Boid j lies within the range defined above, j is collected as a neighbor of i. The average position of the neighbors of Boid i and their distance inbetween will then be calculated and an attractive force that is *proportional to the distance* will be applied on Boid i. In order to generate a mild force feedback and reduce overshoot, a PD controller is considered in the force formulation.
 
 This feature is realized in the function `TVStack cohesion(TVStack positions_temp)`.
+
+For the video demo of this feature please click [here](https://youtu.be/jI4TDs1IEqg).
 
 ### Leading
 
@@ -112,6 +122,8 @@ How a force to avoid obstacle is generated will be explained later in Collision 
 
 This feature is realized in the function `TVStack leading(TVStack positions_temp)`.
 
+For the video demo of this feature please click [here](https://youtu.be/zhJTVJm4UTY).
+
 ### Circular
 
 Please select the initial velocities to be orthogonal to initial positions to visualize the implementation of this feature. The velocities are initialized in the function `void circular_vel_init()`. And please set step size to around 0.50 to observe clear behaviors between different update rules.
@@ -128,6 +140,8 @@ A *constant centripetal force* is applied on each Boid so as to encourage circul
 
 This feature is realized in the function `TVStack circular(TVStack positions_temp)`.
 
+For the video demo of this feature please click [here](https://youtu.be/Gjn-i9ADDFk).
+
 ### Collision Avoidance
 
 An obstacle is enabled and a slidebar determining its position and radius will pop up.
@@ -135,6 +149,8 @@ An obstacle is enabled and a slidebar determining its position and radius will p
 If a Boid has a distance from the obstacle center smaller than the obstacle radius, a repulsive force that is *inversely proportional to the square of the distance* will be applied. In order to generate a mild force feedback and reduce overshoot, an offset term is considered in the force formulation. To avoid Boids bursting into the obstacle, the positions of Boids will be reset to the surface of the obstacle once that happens.
 
 This feature is realized in the function `TVStack collision_avoidance(TVStack positions_temp)`.
+
+For the video demo of this feature please click [here](https://youtu.be/g2D7nSune18).
 
 ### Collaboration and Adversary
 
@@ -175,6 +191,8 @@ Please refer to the code annotation for a detailed documentation of realization.
 Please refer to the video demos for a better understanding of the group behaviors and population evolution process.
 
 This feature is realized in the function `TVStack collaboration_adversary(TVStack positions_temp)`.
+
+For the video demo of this feature please click [here](https://youtu.be/NRDHL3dsVtI).
 
 ### Recommended Parameters
 
