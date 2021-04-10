@@ -224,7 +224,7 @@ public:
             {
                 if ((positions_temp.col(i) - positions_temp.col(j)).norm() <= range)
                 {
-                    f_scaler = 1 / pow((positions_temp.col(i) - positions_temp.col(j) + TV(2.0f, 2.0f)).norm(), 2);
+                    f_scaler = 1 / pow((positions_temp.col(i) - positions_temp.col(j) + TV(1.0f, 1.0f)).norm(), 2);
                     // an offset term is considered to generate a mild force feedback and reduce overshoot
                     f.col(i) += f_scaler * (positions_temp.col(i) - positions_temp.col(j)).normalized();
                 }
@@ -291,7 +291,7 @@ public:
         {
             if ((positions_temp.col(0) - positions_temp.col(i)).norm() <= range)
             {
-                f.col(i) += f_scaler * (positions_temp.col(0) - positions_temp.col(i)) + 0.8f * (velocities.col(0) - velocities.col(i));
+                f.col(i) += f_scaler * (positions_temp.col(0) - positions_temp.col(i)) + 1.4f * (velocities.col(0) - velocities.col(i));
             }
         }
         range = 0.05f;
