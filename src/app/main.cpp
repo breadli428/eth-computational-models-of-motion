@@ -72,6 +72,9 @@ public:
         SliderScalar("Force Scaler", ImGuiDataType_Float, &f_scaler_read, &fsmin, &fsmax);
 
         Combo("Boids Behavior", (int*)&currentMethod, names, 8);
+        if (currentMethod == FREEFALL || currentMethod == CIRCULAR)
+            drawCircles = false;
+        
         if (currentMethod == SEPARATION || currentMethod == ALIGNMENT || currentMethod == COHESION)
         {
             float rmin = 0.01f;
