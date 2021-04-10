@@ -296,6 +296,7 @@ public:
         }
         range = 0.05f;
         f_repulsion = separation(positions_temp);
+        f_repulsion.col(0) = TV(0.0f, 0.0f);
         if (obstacle_enabled) f_obs = collision_avoidance(positions_temp);
         return f + f_repulsion + f_obs;
     }
