@@ -95,29 +95,29 @@ public:
 				VectorXd dOdx_FD = vecFD(x, O_of_x_wrapper);
 				MatrixXd dxdu_FD = matFD(u, x_of_u_wrapper);
 				// --
-				// TODO: DODu += ...
+				DODu += dxdu_FD.transpose() * dOdx_FD;
 			} else if (step == ANALYTIC_dOdx) {
 				// Goal: Compute dOdx analytically.
-				VectorXd dOdx = get_dOdx(x); // TODO: Implement get_dOdx(...)
+				VectorXd dOdx = get_dOdx(x);
 				MatrixXd dxdu_FD = matFD(u, x_of_u_wrapper);
 				// --
-				// TODO: DODu += ...
+				DODu += dxdu_FD.transpose() * dOdx;
 			} else if (step == SOLVE_dxdu) {
 				// Goal: Solve dxdu.
 				VectorXd dOdx = get_dOdx(x);
 				SparseMatrixd dFdu = dense2sparse(matFD(u, F_of_u_NOT_x_of_u_wrapper));
-				// TODO: MatrixXd dxdu = ...
+				MatrixXd dxdu = solve_AX_EQUALS_B(get_H(u, x), dFdu);
 				// --
-				// TODO: DODu += ...
+				DODu += dxdu.transpose() * dOdx;
 				
 			} else if (step == ANALYTIC_dFdu) {
 				// Goal: Analytic everything :)
 				VectorXd dOdx = get_dOdx(x);
-				// TODO: SparseMatrixd dFdx = ...
+				SparseMatrixd dFdx = -get_H(u, x);
 				SparseMatrixd dFdu = get_dFdu(u, x); // TODO: Finish implementing get_dOdx(...)
-				// TODO: MatrixXd dxdu = ...
+				MatrixXd dxdu = solve_AX_EQUALS_B(-dFdx, dFdu);
 				// --
-				// TODO: DODu += ...
+				DODu += dxdu.transpose() * dOdx;
 				
 			}
 
@@ -134,11 +134,14 @@ public:
     }
 
 	VectorXd get_dOdx(const VectorXd &x) const {
-		cout << "NotImplementedWarning:get_dOdx" << endl;
+		// cout << "NotImplementedWarning:get_dOdx" << endl;
 		auto I = sim->getFeaturePointsNodalIndices(); 
 		auto x_prime = get_x_prime();
 		// --
-		VectorXd dOdx; dOdx.setZero(x.size()); 
+		VectorXd dOdx; dOdx.setZero(x.size());
+		for (const int &i : I) {
+			seg2(dOdx, i) = seg2(x, i) - seg2(x_prime, i);
+		} 
 		return dOdx;
 	} 
 
@@ -175,10 +178,10 @@ public:
 					// --> p' = o + R_theta{f} + xy; 
 					
 					// => dp'dxy = ???
-					// TODO: dp_primedu.block<2, 2>(0, xy_dataStartIndex) = ...
+					dp_primedu.block<2, 2>(0, xy_dataStartIndex) = Matrix2d::Identity();
 					
 					// => dp'dtheta = ???
-					// TODO: dp_primedu.col(theta_dataIndex) = ...
+					dp_primedu.col(theta_dataIndex) = Vector2d(f[0] * -sin(theta) - f[1] * cos(theta), f[1] * -sin(theta) + f[0] * cos(theta));;
 
 				} 
 				MatrixXd dFdu = dFdp_prime * dp_primedu;

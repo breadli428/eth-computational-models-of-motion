@@ -44,7 +44,7 @@ public:
 		double mu = shearModulus;
 		double kappa = bulkModulus;
 		// --
-		double energyDensity = 0.0;
+		double energyDensity = mu / 2.0 * (F.squaredNorm() - 2) - mu * log(J) + kappa / 2 * pow(log(J), 2);
 		return energyDensity * restShapeArea;
 	}
 

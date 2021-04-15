@@ -25,21 +25,21 @@ public:
 	// HINT: Vector2d has a method called squaredNorm()
 	double energy(const VectorXd &x) const override {
 		double E = 0.;
-		// TODO: ...
+		E = 0.5 * k * (getPosition(x) - anchorPosition).squaredNorm();
 		return E;
 	}
 
 	// dEdp = ???
 	virtual VectorXd gradient(const VectorXd &x) const override {
 	    VectorXd dEdp; dEdp.setZero(2);
-		// TODO: ...
+		dEdp = k * (getPosition(x) - anchorPosition);
 	    return dEdp;
 	}
 
 	// d2Edp2 = ???
 	virtual MatrixXd hessian(const VectorXd &) const override {
 	    MatrixXd d2Edp2; d2Edp2.setZero(2, 2);
-		// TODO: ...
+		d2Edp2 = k * MatrixXd::Identity(2, 2);
 		return d2Edp2;
 	}
 
