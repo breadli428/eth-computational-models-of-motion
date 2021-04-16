@@ -33,12 +33,14 @@ public:
         if (QUESTION_12) {
 			auto theta_L = u[4];
 			auto theta_R = u[5];
-			auto I = sim->getFeaturePointsNodalIndices();
+			auto x_L = rotate_(Vector2d::UnitX(), theta_L);
+			auto x_R = rotate_(Vector2d::UnitX(), theta_R);
+			auto I = sim->getFeaturePointsNodalIndices(); 
 			auto p_L = seg2(x, I[0]);
 			auto p_R = seg2(x, I[1]);
-			double angle_L = atan2(p_R[1] - p_L[1], p_R[0] - p_L[0]);
-			double angle_R = atan2(p_R[1] - p_L[1], p_R[0] - p_L[0]);
-			O += 1e-2 * (pow(theta_L - angle_L, 2) + pow(theta_R - angle_R, 2));
+			auto n_L = (p_L - p_R).normalized();
+			auto n_R = (p_L - p_R).normalized();
+			O += 1e-1 * (x_L.dot(n_L) + x_R.dot(n_R));
         }
 
         return O;
