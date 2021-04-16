@@ -12,7 +12,7 @@ Recall the definition of the Frobenius norm
 
 ![figure: frobenius](imgs/frobenius.png)
 
-Hence, by linearality of trace, we get
+Hence, by linearality of trace, and since we consider a 2-dimensional case, we get
 
 ![figure: formula](imgs/formula.png)
 
