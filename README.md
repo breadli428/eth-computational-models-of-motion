@@ -1,3 +1,5 @@
+# YouTube video demos click [here](https://youtube.com/playlist?list=PLhqs0Oka9VRFpsdbwTK5U7KQ-dSG7DDQz)
+
 # Assignment 5 - Rigid bodies 
 
 **Hand-in:** May 14, 2021, 18:00 CEST 
