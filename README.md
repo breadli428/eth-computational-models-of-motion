@@ -83,6 +83,8 @@ Okay, if you know why, then it's pretty clear what we need to do for making our 
 
 Once you are done, again try to change the timestep *dt* and see what happens (this question is not for points, and you are free to discuss with your colleagues). 
 
+> The change of simulation result is not very obvious with the decrease of the time step in this setting after we apply symplectic Euler method. But it can be told from the projectile case that the symplectic Euler method somehow loses total energy when updating since the simulated trajectory lies below the analytical one. Therefore, a similar discrepancy, if any, can be also concluded for the settings of Fixed Springs or Rigid Body Springs.
+
 ### Ex.4 Impulse-based Collisions (advanced - 20%)
 
 Well, it looks good already, but you may not be very happy from the fact that the rigid body objects go through the ground (or each other). Well, we can give a slightly more effort to simulate collisions between objects. For simplicity, let's simulate collisions between a spherical rigid body-ground only. 
