@@ -214,10 +214,7 @@ public:
             Matrix3x3 R = rb->state.orientation.toRotationMatrix();
             Matrix3x3 MOI_world = R * rb->rbProps.MOI_local * R.transpose();
             rb->state.angularVelocity += dt * MOI_world.inverse() * (tau - rb->state.angularVelocity.cross(V3D(MOI_world * rb->state.angularVelocity)));
-            rb->state.pos = rb->state.pos + dt * rb->state.velocity;
-            rb->state.orientation = updateRotationGivenAngularVelocity(rb->state.orientation, rb->state.angularVelocity, dt);
-
-
+            
             if (simulateCollisions && rb->rbProps.collision) {
                 // TODO: Ex.4 Impulse-based Collisions
                 // we will simulate collisions between a spherical rigidbody and
@@ -243,7 +240,7 @@ public:
                 // - the radius of the sphere is 0.1 m
                 // - detect collision if 1) the y coordinate of the point at the
                 // bottom of the sphere < 0 and 2) the y component of linear
-                // velocity of the point at the botton < 0.
+                // velocity of the point at the bottom < 0.
                 // - we will assume that a collision only happens at the bottom
                 // points.
                 // - we will assume there's only one contact between a sphere
@@ -252,7 +249,27 @@ public:
                 //
                 // Ex.4 implementation here
                 //
+                P3D bottom_pos_rel = P3D(0.0, -0.1, 0.0);
+                P3D bottom_pos = rb->state.getWorldCoordinates(bottom_pos_rel);
+                V3D bottom_vel = rb->state.getVelocityForPoint_global(bottom_pos);
+                if (bottom_pos.y < 0 && bottom_vel.y() < 0)
+                {
+                    Matrix3x3 K_ground = Matrix3x3::Zero();
+                    Matrix3x3 R = rb->state.orientation.toRotationMatrix();
+                    Matrix3x3 MOI_world = R * rb->rbProps.MOI_local * R.transpose();
+                    P3D offset = bottom_pos - rb->state.pos;
+                    Matrix3x3 offset_skew = getSkewSymmetricMatrix(V3D(offset));
+                    Matrix3x3 K_rb = (Matrix3x3::Identity() / rb->rbProps.mass - offset_skew * MOI_world.inverse() * offset_skew);
+                    Matrix3x3 K_T = K_ground + K_rb;
+                    V3D N = V3D(0, 1, 0);
+                    V3D u_rel = bottom_vel;
+                    V3D J = K_T.inverse() * (-u_rel - eps * u_rel.dot(N) * N.normalized());
+                    rb->state.velocity += J / rb->rbProps.mass;
+                    rb->state.angularVelocity += MOI_world.inverse() * offset_skew * J;
+                }
             }
+            rb->state.pos = rb->state.pos + dt * rb->state.velocity;
+            rb->state.orientation = updateRotationGivenAngularVelocity(rb->state.orientation, rb->state.angularVelocity, dt);
         }
 
         // clean up
