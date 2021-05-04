@@ -12,12 +12,12 @@ public:
 
     static void drawCoordFrame(const RB *rb, const gui::Shader &shader);
 
-    static void drawCollisionSpheres(const RB *rb, const gui::Shader &shader);
-
     static void drawMOI(const RB *rb, const gui::Shader &shader);
 
     static void drawMOI(const RBState &rbState, const RBProperties &rbProps,
                         const gui::Shader &shader, bool wireFrame = false);
+
+    static void drawCollisionRB(const RB *rb, const gui::Shader &shader);
 };
 
 }  // namespace crl

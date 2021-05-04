@@ -8,22 +8,14 @@ namespace crl {
 
 void RBRenderer::drawCoordFrame(const RB *rb, const gui::Shader &shader) {
     drawArrow3d(rb->state.pos,
-                V3D(rb->state.getWorldCoordinates(V3D(1, 0, 0)) * 0.1), 0.01,
+                V3D(rb->state.getWorldCoordinates(V3D(1, 0, 0)) * 0.3), 0.02,
                 shader, V3D(1.0, 0.0, 0.0));
     drawArrow3d(rb->state.pos,
-                V3D(rb->state.getWorldCoordinates(V3D(0, 1, 0)) * 0.1), 0.01,
+                V3D(rb->state.getWorldCoordinates(V3D(0, 1, 0)) * 0.3), 0.02,
                 shader, V3D(0.0, 1.0, 0.0));
     drawArrow3d(rb->state.pos,
-                V3D(rb->state.getWorldCoordinates(V3D(0, 0, 1)) * 0.1), 0.01,
+                V3D(rb->state.getWorldCoordinates(V3D(0, 0, 1)) * 0.3), 0.02,
                 shader, V3D(0.0, 0.0, 1.0));
-}
-
-void RBRenderer::drawCollisionSpheres(const RB *rb, const gui::Shader &shader) {
-    for (uint i = 0; i < rb->rbProps.contactPoints.size(); i++) {
-        RBContactPoint cs = rb->rbProps.contactPoints[i];
-        P3D pos = rb->state.getWorldCoordinates(cs.localCoordinates);
-        drawSphere(pos, 0.02, shader, rb->rbProps.colSphereDrawColor);
-    }
 }
 
 void RBRenderer::drawMOI(const RBState &rbState, const RBProperties &rbProps,
@@ -72,6 +64,13 @@ void RBRenderer::drawMOI(const RBState &rbState, const RBProperties &rbProps,
 
 void RBRenderer::drawMOI(const RB *rb, const gui::Shader &shader) {
     drawMOI(rb->state, rb->rbProps, shader);
+}
+
+void RBRenderer::drawCollisionRB(const RB *rb, const gui::Shader &shader) {
+    if (rb->rbProps.selected)
+        drawSphere(rb->state.pos, 0.1, shader, rb->rbProps.highlightColor);
+    else
+        drawSphere(rb->state.pos, 0.1, shader, V3D(0.7, 0.7, 0.7));
 }
 
 }  // namespace crl

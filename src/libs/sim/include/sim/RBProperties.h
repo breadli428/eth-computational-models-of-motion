@@ -25,9 +25,6 @@ public:
     // coordinate frame
     Matrix3x3 MOI_local = Matrix3x3::Identity();
 
-    // collision primitives that are relevant for this rigid body
-    std::vector<RBContactPoint> contactPoints;
-
     // id of the rigid body
     int id = -1;
 
@@ -36,7 +33,6 @@ public:
 
     // for drawing abstract view
     V3D highlightColor = V3D(1.0, 0.5, 0.5);
-    V3D colSphereDrawColor = V3D(0.75, 0.0, 0.0);
 
     // draw color for rb primitive
     V3D color = V3D(0.5, 0.5, 0.5);
@@ -45,6 +41,7 @@ public:
     bool fixed = false;
 
     // physics related coefficients
+    bool collision = false;
     double restitutionCoeff = 0;
     double frictionCoeff = 0.8;
 

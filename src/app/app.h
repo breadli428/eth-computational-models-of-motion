@@ -36,6 +36,7 @@ public:
 
         this->targetFramerate = 30;
         this->limitFramerate = true;
+        this->showConsole = false;
 
         // setup world
         setupWorld();
@@ -260,15 +261,13 @@ public:
                            ImGuiInputTextFlags_ReadOnly);
 
         ImGui::Text("Simulation Settings:");
-        ImGui::Checkbox("Collision", &physicsEngine->simulateCollisions);
-        ImGui::SliderFloat("epsilon", &physicsEngine->eps, 0.0, 1.0);
-        ImGui::SliderFloat("mu", &physicsEngine->mu, 0.0, 2.0);
+        if (physicsEngine->simulateCollisions) {
+            ImGui::SliderFloat("epsilon", &physicsEngine->eps, 0.0, 1.0);
+        }
 
         if (ImGui::TreeNode("Draw options...")) {
             ImGui::Checkbox("Draw Coordinate Frames",
                             &physicsEngine->showCoordFrame);
-            ImGui::Checkbox("Draw Collision Spheres",
-                            &physicsEngine->showCollisionSpheres);
             ImGui::TreePop();
         }
 
@@ -291,6 +290,7 @@ private:
         // setup scene now
         switch (selectedScene) {
             case SimulationScene::Projectile: {
+                physicsEngine->simulateCollisions = false;
                 camera.distanceToTarget = 5;
                 camera.rotAboutUpAxis = 0;
                 camera.rotAboutRightAxis = 0.25;
@@ -302,6 +302,7 @@ private:
                 break;
             }
             case SimulationScene::FixedSprings: {
+                physicsEngine->simulateCollisions = false;
                 camera.distanceToTarget = 6;
                 camera.rotAboutUpAxis = 0;
                 camera.rotAboutRightAxis = 0.25;
@@ -312,6 +313,7 @@ private:
                 break;
             }
             case SimulationScene::RigidBodySprings: {
+                physicsEngine->simulateCollisions = false;
                 camera.distanceToTarget = 6;
                 camera.rotAboutUpAxis = 0;
                 camera.rotAboutRightAxis = 0.25;
@@ -332,6 +334,15 @@ private:
                                                  P3D(-0.12, 0.12, -0.12));
                 break;
             }
+            case SimulationScene::Collision: {
+                physicsEngine->simulateCollisions = true;
+                camera.distanceToTarget = 5;
+                camera.rotAboutUpAxis = 0;
+                camera.rotAboutRightAxis = 0.25;
+                auto *rb = physicsEngine->addCollidingRigidBodyToEngine();
+                rb->state.pos = collisionP0;
+                break;
+            }
             default:
                 break;
         }
@@ -344,7 +355,7 @@ private:
 
 public:
     SimpleGroundModel ground;
-    
+
     // simulation conf
     double dt = 1 / 30.0;
 
@@ -365,6 +376,7 @@ public:
     // some constants
     const P3D projectileP0 = P3D(RBGlobals::g * 0.25, 0.5, 0);
     const V3D projectileV0 = V3D(-RBGlobals::g * 0.5, -RBGlobals::g * 0.5, 0);
+    const P3D collisionP0 = P3D(0, -RBGlobals::g * 0.15, 0);
 
     // flags
     bool slowMo = false;
