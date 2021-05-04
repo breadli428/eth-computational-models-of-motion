@@ -19,7 +19,11 @@ Quaternion updateRotationGivenAngularVelocity(const Quaternion &q,
         // q_p = rot(w, dt) * q
 
         // TODO: fix the following line.
-        return q;
+        Quaternion delta_q;
+        delta_q.w() = cos(dt * angularVelocityMagnitude/ 2);
+        delta_q.vec() = sin(dt * angularVelocityMagnitude/ 2) * angularVelocity / angularVelocityMagnitude;
+        Quaternion q_p = delta_q * q;
+        return q_p;
     }
     return q;
 }
@@ -96,14 +100,18 @@ public:
             // implement your logic for a spring which is attached to world
             //
             // TODO: Fix the following line
-            springs.back()->l0 = 0;
+            P3D pJPos_world = pJPos;
+            P3D cJPos_world = child->state.getWorldCoordinates(cJPos);
+            springs.back()->l0 = V3D(pJPos_world - cJPos_world).norm();
         } else {
             // TODO: Ex.2-2
             // implement your logic for a spring where both ends are attached
             // to rigid bodies
             //
             // TODO: Fix the following line
-            springs.back()->l0 = 0;
+            P3D pJPos_world = parent->state.getWorldCoordinates(pJPos);
+            P3D cJPos_world = child->state.getWorldCoordinates(cJPos);
+            springs.back()->l0 = V3D(pJPos_world - cJPos_world).norm();
         }
         return springs.back();
     }
@@ -147,10 +155,33 @@ public:
             if (spring->parent == nullptr) {
                 // TODO: Ex.2-1
                 // implement your logic for a spring which is attached to world
+                V3D pJPos_world = V3D(spring->pJPos);
+                V3D cJPos_world = V3D(spring->child->state.getWorldCoordinates(spring->cJPos));
+                V3D vPos = cJPos_world - pJPos_world;
+                V3D f_spring = -spring->k * (vPos - vPos.normalized() * spring->l0);
+                V3D tau_spring = (cJPos_world - V3D(spring->child->state.pos)).cross(f_spring);
+                auto it = find(rbs.begin(), rbs.end(), spring->child);
+                int idx = it - rbs.begin();
+                f_ext[idx] += f_spring;
+                tau_ext[idx] += tau_spring;
             } else {
                 // TODO: Ex.2-2
                 // implement your logic for a spring where both ends are attached
                 // to rigid bodies.
+                V3D pJPos_world = V3D(spring->parent->state.getWorldCoordinates(spring->pJPos));
+                V3D cJPos_world = V3D(spring->child->state.getWorldCoordinates(spring->cJPos));
+                V3D vPos = cJPos_world - pJPos_world;
+                V3D f_spring = -spring->k * (vPos - vPos.normalized() * spring->l0);
+                V3D tau_spring_p = (pJPos_world - V3D(spring->parent->state.pos)).cross(f_spring);
+                V3D tau_spring_c = (cJPos_world - V3D(spring->child->state.pos)).cross(f_spring);
+                auto p_it = find(rbs.begin(), rbs.end(), spring->parent);
+                int p_idx = p_it - rbs.begin();
+                f_ext[p_idx] -= f_spring;
+                tau_ext[p_idx] -= tau_spring_p;
+                auto c_it = find(rbs.begin(), rbs.end(), spring->child);
+                int c_idx = c_it - rbs.begin();
+                f_ext[c_idx] += f_spring;
+                tau_ext[c_idx] += tau_spring_c;
             }
         }
 
@@ -168,10 +199,24 @@ public:
             //
             // implement your logic here.
 
+            // rb->state.pos = rb->state.pos + dt * rb->state.velocity;
+            // Matrix3x3 R = rb->state.orientation.toRotationMatrix();
+            // rb->state.orientation = updateRotationGivenAngularVelocity(rb->state.orientation, rb->state.angularVelocity, dt);
+            // rb->state.velocity += dt * f / rb->rbProps.mass;
+            // Matrix3x3 MOI_world = R * rb->rbProps.MOI_local * R.transpose();
+            // rb->state.angularVelocity += dt * MOI_world.inverse() * (tau - rb->state.angularVelocity.cross(V3D(MOI_world * rb->state.angularVelocity)));
+
             // TODO: Ex.3 Stable Simulation
             // why our simulation is blown up? let's make it more stable!
             //
             // comment out (do not erase!) your logic for Ex.1 and implement Ex.3 here.
+            rb->state.velocity += dt * f / rb->rbProps.mass;
+            Matrix3x3 R = rb->state.orientation.toRotationMatrix();
+            Matrix3x3 MOI_world = R * rb->rbProps.MOI_local * R.transpose();
+            rb->state.angularVelocity += dt * MOI_world.inverse() * (tau - rb->state.angularVelocity.cross(V3D(MOI_world * rb->state.angularVelocity)));
+            rb->state.pos = rb->state.pos + dt * rb->state.velocity;
+            rb->state.orientation = updateRotationGivenAngularVelocity(rb->state.orientation, rb->state.angularVelocity, dt);
+
 
             if (simulateCollisions && rb->rbProps.collision) {
                 // TODO: Ex.4 Impulse-based Collisions
