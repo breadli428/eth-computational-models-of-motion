@@ -57,6 +57,8 @@ Your very first task is implementing this numerical integration step in ```src/l
 
 Okay, if your projectile simulation works properly, change the simulation rate and notice how the trajectory of the rigidbody changes. What do you notice and why it happens? **Leave your answer in a single sentence below. A correct answer will be counted as 10%.**
 
+> As the simulation rate is increased, the position trajectory (green dots) moves closer to the analytic trajectory (red dots). This is because we are using explicit Euler method to perform numerical integration in the **discretized** system dynamics, where the growth of simulation rate (or the decrease of time step) will result in more precised approximation to the continuous setting.
+
 ### Ex.2 Springs (baseline - 20%)
 
 Okay, now let's add some external force sources: we will create springs in the simulation scenes. 
@@ -73,7 +75,9 @@ Every spring has a same spring constant, and its force is linear to displacement
 
 ### Ex.3 Stable Simulation (baseline - 20%)
 
-Well, in fact, this is super normal. I hope you already figured out what the problem is. If not... I will give you a hint. Did you notice that the trajectory of the projectile object (in **Projectile** scene) differs from the analytical trajectory (red)? Why it's the case?  
+Well, in fact, this is super normal. I hope you already figured out what the problem is. If not... I will give you a hint. Did you notice that the trajectory of the projectile object (in **Projectile** scene) differs from the analytical trajectory (red)? Why it's the case?
+
+> Since we have been using explicit Euler method to perform numerical integration in the **discretized** system dynamics and the total energy of the system increases when the explicit Euler method is applied. This behavior is escalated with the growth of step size, which indicates that the explicit Euler method overshoots for strongly attractive fixed-points and large time steps. Thus, it makes sense to use a more stable time integration method that conserves the energy. To this end, symplectic Euler method has been applied.
 
 Okay, if you know why, then it's pretty clear what we need to do for making our rigid body simulator more stable. Your task is making our simulator stable enough so that we can simulate springs with *dt = 1/30* (simulation rate, 30Hz). **Record a demo video ~ 30 secs that shows all three simulation scenes and upload it to this repository with a name "demo1.mp4".** Do a double check if your video can be played without any additional encoding/decoding. It's also fine to upload your video to YouTube and add its link to on the top of this README.md. If I cannot play or access your video until the deadline, you won't get full points. 
 
