@@ -160,10 +160,8 @@ public:
                 V3D vPos = cJPos_world - pJPos_world;
                 V3D f_spring = -spring->k * (vPos - vPos.normalized() * spring->l0);
                 V3D tau_spring = (cJPos_world - V3D(spring->child->state.pos)).cross(f_spring);
-                auto it = find(rbs.begin(), rbs.end(), spring->child);
-                int idx = it - rbs.begin();
-                f_ext[idx] += f_spring;
-                tau_ext[idx] += tau_spring;
+                f_ext[spring->child->rbProps.id] += f_spring;
+                tau_ext[spring->child->rbProps.id] += tau_spring;
             } else {
                 // TODO: Ex.2-2
                 // implement your logic for a spring where both ends are attached
@@ -174,14 +172,10 @@ public:
                 V3D f_spring = -spring->k * (vPos - vPos.normalized() * spring->l0);
                 V3D tau_spring_p = (pJPos_world - V3D(spring->parent->state.pos)).cross(f_spring);
                 V3D tau_spring_c = (cJPos_world - V3D(spring->child->state.pos)).cross(f_spring);
-                auto p_it = find(rbs.begin(), rbs.end(), spring->parent);
-                int p_idx = p_it - rbs.begin();
-                f_ext[p_idx] -= f_spring;
-                tau_ext[p_idx] -= tau_spring_p;
-                auto c_it = find(rbs.begin(), rbs.end(), spring->child);
-                int c_idx = c_it - rbs.begin();
-                f_ext[c_idx] += f_spring;
-                tau_ext[c_idx] += tau_spring_c;
+                f_ext[spring->parent->rbProps.id] -= f_spring;
+                tau_ext[spring->parent->rbProps.id] -= tau_spring_p;
+                f_ext[spring->child->rbProps.id] += f_spring;
+                tau_ext[spring->child->rbProps.id] += tau_spring_c;
             }
         }
 
