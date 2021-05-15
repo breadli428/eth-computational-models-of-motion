@@ -59,8 +59,18 @@ class ChallengeObjective : public ObjectiveFunction {
 public: 
 	virtual double evaluate(const VectorXd &u_stack) const { 
 		auto u = unstackTraj(u_stack);
+		int K_pred = 100;
+		for (int k = 0; k < K_pred; k++) {
+			u.push_back(Vector2d::Zero());
+		}
+		auto x = get_x(u);
+		auto v = get_v(u);
 		double O = 0.;
-		// TODO: O += ...
+		for (int k = K; k < (K + K_pred); k++) {
+			O += pow(10., 2.0) * pow(from_(x_sun, x[k]).norm() - r_prime, 2);
+			O += pow(10., 2.8) * pow(from_(x_sun, x[k]).dot(v[k]), 2);
+			O += pow(10., 2.0) * pow((v[k].squaredNorm() - (get_Fk(u[k], x[k]) - u[k]).norm() * r_prime / m), 2);
+		}
 		
 		return O;
 	}

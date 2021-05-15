@@ -35,9 +35,9 @@ pair<Vector2d, Vector2d> stepPhysicsExplicitEuler(const Vector2d &xk, const Vect
 	// NOTE: I use xkp1 to mean $x_{k+1}$.
 	Vector2d xkp1 = xk;
 	Vector2d vkp1 = vk;
-	// TODO: xkp1 = ...
-	// TODO: vkp1 = ...
-	cout << "NotImplementedError:stepPhysicsExplicitEuler" << endl;	
+	Vector2d Fk = get_Fk(uk, xk);
+	xkp1 += h * vk;
+	vkp1 += h * Fk / m;
     
 	return std::make_pair(xkp1, vkp1);
 }
@@ -65,6 +65,8 @@ public:
 	// Please feel free to use this in the coefficient of a regularizer as pow(10., log_c_reg).
 	// It's already in your GUI.
 	double log_c_reg = -3.; double log_c_reg_min = -6.; double log_c_reg_max = 6.;
+	double log_c_x0 = 3.; double log_c_x0_min = -6.; double log_c_x0_max = 6.;
+	double log_c_physics = 3.; double log_c_physics_min = -6.; double log_c_physics_max = 6.;
 
 	virtual double evaluate(const VectorXd &stack) const {
 		auto uxv = disassemble(stack);
@@ -73,7 +75,16 @@ public:
 		Traj v = uxv[2]; // v0, ..., vK
 		// --
 		double O = 0.; 
-		// TODO: O += ...
+		O += pow(10., 3.0) * (x_prime - x.back()).squaredNorm();
+		O += pow(10., 1.0) * v.back().squaredNorm();
+		for (int k = 0; k < K; k++)
+		{
+			O += pow(10., log_c_physics) * (h * v[k] - (x[k + 1] - x[k])).squaredNorm();
+			O += pow(10., log_c_physics) * (h * get_Fk(u[k], x[k]) / m - (v[k + 1] - v[k])).squaredNorm();
+		}
+		O += pow(10., log_c_x0) * (x[0] - x0).squaredNorm();
+		O += pow(10., 3.0) * (v[0] - v0).squaredNorm();
+		O += pow(10., log_c_reg) * stack.squaredNorm();
 		
 		return O;
 	}
@@ -201,7 +212,8 @@ private:
 		using namespace ImGui;
 		Begin("NOTE: Press r to reset (optimization or simulation).");
 		Checkbox("OPTIMIZE // Keyboard Shortcut: o", &OPTIMIZE);
-		SliderScalar("log_c_reg", ImGuiDataType_Double, &objective.log_c_reg, &objective.log_c_reg_min, &objective.log_c_reg_max); 
+		SliderScalar("log_c_x0", ImGuiDataType_Double, &objective.log_c_x0, &objective.log_c_x0_min, &objective.log_c_x0_max); 
+		SliderScalar("log_c_physics", ImGuiDataType_Double, &objective.log_c_physics, &objective.log_c_physics_min, &objective.log_c_physics_max); 
 		Checkbox("VISUALIZE // Keyboard Shortcut: s", &VISUALIZE);
 		Checkbox("SLOMO",     &SLOMO);
 		Checkbox("PRINT  O",  &PRINT_O);

@@ -32,7 +32,12 @@ Vector2d x_planet = .5 * (x0 + x_prime);
 
 Vector2d get_Fk(const Vector2d &uk, const Vector2d &xk) {
 	Vector2d Fk = Vector2d::Zero();
-	// TODO: Fk += ...
+	Fk += uk;
+	if (PLANET)
+	{
+		Vector2d r = x_planet - xk;
+		Fk += r.normalized() / r.squaredNorm();
+	}
 
 	return Fk;
 } 
@@ -41,8 +46,9 @@ pair<Vector2d, Vector2d> stepPhysicsExplicitEuler(const Vector2d &xk, const Vect
 	// NOTE: I use xkp1 to mean $x_{k+1}$.
 	Vector2d xkp1 = xk;
 	Vector2d vkp1 = vk;
-	// TODO: xkp1 = ...
-	// TODO: vkp1 = ...
+	Vector2d Fk = get_Fk(uk, xk);
+	xkp1 += h * vk;
+	vkp1 += h * Fk / m;
 	
 	return std::make_pair(xkp1, vkp1);
 } 
@@ -76,8 +82,9 @@ public:
 		auto v = get_v(u);
 		// --
 		double O = 0.;
-		// TODO: O += ...
-		
+		O += pow(10., 1.5) * (x_prime - x.back()).squaredNorm();
+		O += pow(10., 1.0) * v.back().squaredNorm();
+		O += pow(10., log_c_reg) * u_stack.squaredNorm();
 		return O;
 	}
 };
