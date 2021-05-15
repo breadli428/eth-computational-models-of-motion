@@ -9,14 +9,14 @@ Last Name: Li
 ### Solution to Question 2:
 
 Since
-$$
-v_k = \dfrac{x_{k+1} - x_k}{h}, \quad v_{k+1} = \dfrac{x_{k+2} - x_{k+1}}{h}
-$$
+
+![figure: formula_1](imgs/formula_1.jpg)
+
 
 we get
-$$
-a_k = \dfrac{v_{k+1} - v_k}{h} = \dfrac{x_{k+2} - 2x_{k+1} + x_k}{h^2}
-$$
+
+![figure: formula_2](imgs/formula_2.jpg)
+
 
 ### Solution to Question 5:
 
