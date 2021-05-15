@@ -6,7 +6,7 @@ First Name: Chenhao
 
 Last Name: Li
 
-Solution to Question 2:
+### Solution to Question 2:
 
 Since
 $$
@@ -18,13 +18,13 @@ $$
 a_k = \dfrac{v_{k+1} - v_k}{h} = \dfrac{x_{k+2} - 2x_{k+1} + x_k}{h^2}
 $$
 
-Solution to Question 5:
+### Solution to Question 5:
 
 By printing values of `O`, we can observe that Newton's method converges in general within 2-3 steps. In comparison, gradient descent requires significantly more steps to converge.
 
 This can be interpreted by the computation of direction of Newton's method, where it applies a coordinate transformation so that the gradient points directly towards the stationary point and converges the fastest in the current neighborhood.
 
-Solution to Question 7:
+### Solution to Question 7:
 
 A successful trajectory optimization with existence of the planet is shown below.
 
@@ -32,11 +32,11 @@ A successful trajectory optimization with existence of the planet is shown below
 
 Note: The weights for position and velocity errors might need to be adapted to get a faster and smoother convergence due to the presence of the planet.
 
-Solution to Question 9:
+### Solution to Question 9:
 
 Gradient descent does not work in this case because it fails to take into account the significantly unbalanced penalty weights of different orders of magnitude in the objective function. The resulting function landscape is therefore greatly squeezed in some gradient directions while streched in the others. This numerically ill-conditioned problem incurs an optimization along only certain dimensions while making nearly no progress on the others.
 
-Explanation of your approach to Question 10 (required for full credit):
+### Explanation of your approach to Question 10 (required for full credit):
 
 To ensure the spaceship stays in the desired orbit within the required number of frames, a prediction of its state for 100 frames after the thrust disappears has been made. For each frame in the prediction horizon, it has to satisfy
 - the distence between the spaceship and the planet remains `r_prime`
